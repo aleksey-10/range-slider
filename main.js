@@ -54,7 +54,7 @@ slider.addEventListener('click', function(e) {
 });
 
 slider.addEventListener('mousedown', function(e) {
-  if (e.target.tagName !== 'BUTTON') {
+  if (!e.target.classList.contains('slider__button')) {
     return;
   }
 
@@ -80,9 +80,7 @@ function setPosition(type) {
   const position = form[type].value * coordinates.differential;
 
   if (!checkCoordinates(type, position)) {
-    form[type].value = coordinates[type] / coordinates.differential;
-
-    return;
+    return setPosition(type);
   }
 
   if (type === 'min') {
@@ -96,12 +94,19 @@ function setPosition(type) {
 }
 
 function checkCoordinates(type, position) {
-  const isValidMin = type === 'min' && position >= 0
-    && position < coordinates.max;
-  const isValidMax = type === 'max' && position <= coordinates.width
-    && position > coordinates.min;
+  if (position < 0) {
+    form[type].value = 0;
+  } else if (position > coordinates.width) {
+    form[type].value = 100;
+  } else if (type === 'min' && position > coordinates.max) {
+    form[type].value = coordinates.max / coordinates.differential;
+  } else if (type === 'max' && position < coordinates.min) {
+    form[type].value = coordinates.min / coordinates.differential;
+  } else {
+    return true;
+  }
 
-  return type === 'min' ? isValidMin : isValidMax;
+  return false;
 }
 
 function getType(element) {

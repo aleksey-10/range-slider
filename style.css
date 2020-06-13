@@ -27,7 +27,7 @@ button {
 }
 
 .form__item {
-  margin: 0 25px 15px;
+  margin: 0 50px 25px;
 }
 
 .form__item:last-child {
@@ -66,7 +66,7 @@ button {
   height: calc(var(--slider-height) * 1.25);
   width: 10px;
   position: absolute;
-  transform: translateY(-15%);
+  transform: translateY(-15%) translateX(-50%);
 
   cursor: pointer;
 }

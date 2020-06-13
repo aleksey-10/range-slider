@@ -9,15 +9,15 @@ const buttons = {
   max: slider.querySelector('.slider__button--max'),
 }
 
-const sliderCoordinates = slider.getBoundingClientRect();
-
 const coordinates = {
-  width: slider.clientWidth,
+  get width() {
+    return slider.clientWidth;
+  },
   get differential() {
     return this.width / 100;
   },
-  min: 0,
-  max: slider.clientWidth,
+  min: form.min.value,
+  max:  form.max.value,
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -42,13 +42,14 @@ slider.addEventListener('click', function(e) {
     return;
   }
 
-  const x = e.clientX - sliderCoordinates.x;
+  const clickPosition = calcPosition(e.clientX);
+
   const centerBetween = coordinates.min +
     (coordinates.max - coordinates.min) / 2;
 
-  const type = x < centerBetween ? 'min' : 'max'; 
+  const type = clickPosition < centerBetween ? 'min' : 'max'; 
 
-  form[type].value = Math.round(x / coordinates.differential);
+  form[type].value = Math.round(clickPosition);
 
   setPosition(type);
 });
@@ -67,41 +68,43 @@ slider.addEventListener('mousedown', function(e) {
     document.removeEventListener('mouseup', onMouseUp);
   })
 
-  function onMouseMove(e) {
-    const x = event.clientX - sliderCoordinates.x;
+  function onMouseMove(event) {
+    const movementPosition = calcPosition(event.clientX);
   
-    form[type].value = Math.round(x / coordinates.differential);
+    form[type].value = Math.round(movementPosition);
   
     setPosition(type);
   }
 });
 
 function setPosition(type) {
-  const position = form[type].value * coordinates.differential;
+  const position = Number(form[type].value);
 
   if (!checkCoordinates(type, position)) {
     return setPosition(type);
   }
 
+  const x = position * coordinates.differential;
+
   if (type === 'min') {
-    field.style.left = position + 'px';
+    field.style.left = x + 'px';
   } else {
-    field.style.right = coordinates.width - position + 'px';
+    field.style.right = coordinates.width - x + 'px';
   }
 
-  buttons[type].style.left = position + 'px';
+  buttons[type].style.left = x + 'px';
   coordinates[type] = position;
 }
 
 function checkCoordinates(type, position) {
   if (position < 0) {
     form[type].value = 0;
-  } else if (position > coordinates.width) {
+  } else if (position > 100) {
     form[type].value = 100;
   } else if (type === 'min' && position > coordinates.max) {
-    form[type].value = coordinates.max / coordinates.differential;
+    form[type].value = coordinates.max;
   } else if (type === 'max' && position < coordinates.min) {
-    form[type].value = coordinates.min / coordinates.differential;
+    form[type].value = coordinates.min;
   } else {
     return true;
   }
@@ -114,4 +117,9 @@ function getType(element) {
   const type = element.classList.value.match(pattern)[0].split('--')[1];
 
   return type; 
+}
+
+function calcPosition(x) {
+  return (x - slider
+    .getBoundingClientRect().x) / coordinates.differential;
 }

@@ -19,8 +19,7 @@ button {
   display: flex;
   flex-direction: column;
 
-  max-width: 500px;
-  width: 100%;
+  width: 400px;
   margin: 20px auto;
   padding-top: 50px;
   border: 1px solid lightslategray;
